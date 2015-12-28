@@ -1,0 +1,120 @@
+=head1 NAME
+
+slicd-exec - Daemon to execute command-lines
+
+=head1 SYNOPSIS
+
+B<slicd-exec> [B<-R> I<FD>] I<ARG...>
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h, --help>
+
+Show help screen and exit.
+
+=item B<-R, --ready-fd> I<FD>
+
+Announce readiness by printing a LF (\n) on I<FD> when ready. This can be used
+to signal to your service manager when the daemon is actually ready.
+
+=item B<-V, --version>
+
+Show version information and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<slicd-exec>(1) is a daemon that will read lines on its stdin, then fork &
+execute the specified command line. It is meant to be used alongside
+B<slicd-sched>(1) to actually run the cron jobs.
+
+The argument on its command-line are the ones that will be used to create a
+command line to execute into for each job.
+
+B<slicd-exec>(1) expect to read lines in the form I<USERNAME:COMMAND LINE> and
+for each one, will fork a new child and execute into a new command line. The
+stdout & stderr of the new child will be pipes and anything printed there will
+end up on B<slicd-exec>(1)'s stdout.
+
+It is important to note that it does not do anything else, specifically does not
+drop privileges or set up the environment. If this is needed, this should be
+done by execing into the right tools.
+
+=head2 Command-line construction
+
+When a new line is read, it is split in two : a username, and a command-line.
+B<slicd-exec>(1) will then fork & execute into a new command line, as specified
+on its own command line, with one single treatment: Any percent sign followed by
+another one (%%) will be replaced with a single percent sign (%), and any
+percent sign followed by a lowercase 'u' (%u) will be replaced with the
+username, as read from stdin.
+
+The command line (or argv) to execute into is then the resulting arguments, with
+one extra argument: the command-line as read from stdin.
+
+For example, a classic way to run B<slicd-exec>(1) would be:
+
+    slicd-exec setuid %u sh -c
+
+With this, for a line "bob:echo 'hello world'" read on its stdin, it will fork a
+new process and execute into a command-line made of 5 arguments:
+
+=over
+
+=item setuid
+
+=item bob
+
+=item sh
+
+=item -c
+
+=item echo 'hello world'
+
+=back
+
+B<setuid>(1) is a small tool that simply drops privileges to that of the
+username specified as first argument, then executes into the rest of its
+command line.
+
+In this case, into the shell, which will then parse & execute the command-line
+from the crontab.
+
+If you don't need a full shell to run your cron jobs, you can use
+B<miniexec>(1), a small tool that will simply parse/split its arguments then
+execute into the resulting command line.
+
+=head1 NOTES
+
+Remember that B<slicd-exec>(1) does not do any privileges drop or environment
+manipulation, those must be handled by what every job will exec into. If you're
+running a supervision suite (a-la daemontools) you probably have plenty of such
+tools to do everything you need.
+
+B<slicd-exec>(1) does not actually require root privileges to run. In fact, it
+could run as any user just fine, except that then every job will run as that
+user as well, and the one from the cronjob (i.e. read on stdin) has to be
+ignored.
+
+=head1 RETURN VALUE
+
+The following return values are possible:
+
+=over
+
+=item B<0> : success
+
+=item B<1> : usage error (unknown option, etc)
+
+=item B<2> : I/O error (permission denied, etc)
+
+=item B<3> : memory error
+
+=back
+
+=head1 SEE ALSO
+
+B<slicd-parser>(1), B<slicd-sched>(1), B<setuid>(1), B<miniexec>(1)

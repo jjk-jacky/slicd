@@ -1,0 +1,113 @@
+=head1 NAME
+
+miniexec - Parse and execute command line
+
+=head1 SYNOPSIS
+
+B<miniexec> I<ARG...>
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h, --help>
+
+Show help screen and exit.
+
+=item B<-V, --version>
+
+Show version information and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<miniexec>(1) is a small tool to parse its arguments and execute into the
+resulting command line. It is very simple, and aimed to be used from
+B<slicd-exec>(1) (after B<setuid>(1)) to avoid running a whole shell just to
+execute a simple command line.
+
+B<miniexec>(1) will construct the command line to execute into by parsing each
+of its argument in the following manner (similar to single-quote shell escaping) :
+
+- skip leading & ending blanks (spaces & tabulations)
+
+- anything in between single quotes is left as-in (the single quotes being
+  removed, obviously). A single quote cannot be used within, you need to escape
+  it outside, e.g:
+
+    'This is how it'\''s done.'
+
+- any backslash followed by another backslash will be replaced with a single
+  backslash
+
+- any backslash followed by a single quote will be replaced with a single quote
+
+- split on blanks
+
+=head2 Example
+
+For example, imagine you ran B<slicd-exec>(1) as such:
+
+    slicd-exec setuid %u miniexec
+
+Processing a line "bob:echo 'hello world'" read on its stdin, it would fork a
+new process and execute into a command-line made of 4 arguments:
+
+=over
+
+=item setuid
+
+=item bob
+
+=item miniexec
+
+=item echo 'hello world'
+
+=back
+
+Which in turn would have B<setuid>(1) drop privileges, then execute into:
+
+=over
+
+=item miniexec
+
+=item echo 'hello world'
+
+=back
+
+B<miniexec>(1) would then parse its arguments, and execute into the expected
+command line:
+
+=over
+
+=item echo
+
+=item hello world
+
+=back
+
+=head1 RETURN VALUE
+
+The following return values are possible:
+
+=over
+
+=item B<0> : success (only with B<--help> or B<--version>)
+
+=item B<131> : usage error (unknown option, etc)
+
+=item B<132> : I/O error (permission denied, etc)
+
+=item B<133> : memory error
+
+=item B<134> : parsing error
+
+=back
+
+Note that they are above the usual to help differentiate with return values from
+the program executed into.
+
+=head1 SEE ALSO
+
+B<slicd-parser>(1), B<slicd-sched>(1), B<slicd-exec>(1), B<setuid>(1)

@@ -1,0 +1,171 @@
+=head1 NAME
+
+slicd-parser - Parse crontabs and "compile" them
+
+=head1 SYNOPSIS
+
+B<slicd-parser> [B<-s> I<FILE>] [B<-u> I<DIR>] [B<-U> I<DIR>] -o I<FILE>
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h, --help>
+
+Show help screen and exit.
+
+=item B<-o, --output> I<FILE>
+
+Write compiled crontabs into I<FILE>. This can be I</dev/null> is you only want
+to check for parsing/syntax errors in the crontabs.
+
+This option is required.
+
+=item B<-s, --system> I<FILE>
+
+Parse I<FILE> as a system crontabs if it is a regular file; if it is a directory
+then parse every file it contains (not recursive) as one.
+
+A system crontab is one with an extra field (6th) before the command line, for
+the username to run command lines as.
+
+You can specify this option multiple times. At least one of B<--system>,
+B<--users> or B<--users-dirs> must be specified.
+
+=item B<-u, --users> I<DIR>
+
+Parse every file inside I<DIR> (one level, no recursion) as a user crontab, the
+name of the file being the username to execute command lines as.
+
+You can specify this option multiple times. At least one of B<--system>,
+B<--users> or B<--users-dirs> must be specified.
+
+=item B<-U, --users-dirs> I<DIR>
+
+Will go through every directory inside I<DIR> (one level), then parse every file
+within (one level, no recursion) as user crontabs. The name of the directory
+must be the username to run command lines as.
+
+You can specify this option multiple times. At least one of B<--system>,
+B<--users> or B<--users-dirs> must be specified.
+
+=item B<-V, --version>
+
+Show version information and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<slicd-parser>(1) is a small tool that will read & parse the specified
+crontabs, and "compile" them into a single file in a ready-to-use format, that
+will be used by B<slicd-sched>(1).
+
+The format of the crontabs is mostly compatible with that of other cron daemons,
+with notable exception that no environment setting are supported.
+
+Any line starting with a pound sign (#) is ignored, to allow comments. Comments
+are not supported elsewhere, e.g. at the end of a line (any pound sign will then
+be part of the command line).
+
+Each line is made of 5 time-and-date fields, followed by a username field for
+system crontabs, then the command line.
+
+The time-and-date fields are, in order:
+
+    field               allowed values
+    -----               --------------
+    minute              0-59
+    hour                0-23
+    day                 1-31
+    month               1-12 (or names, see below)
+    day of the week     0-6 (0=Sunday, 1=Monday, etc; or names, see below)
+
+Range of values are allowed, separating two values with a hyphen (-). The
+specified range is inclusive, and must always have the lower value first.
+
+A field can contain either a single value, a single range, or a list. A list is
+a set of values or ranges, separated by commas.
+
+A field may also contain an asterisk (*) to mean all allowed values (i.e. same
+as "first-last" range).
+
+A step value can be used with ranges (or asterisk). Following the range (or
+asterisk) with "/I<n>" where I<n> is the number to move forward in the range.
+The lower value will always be matched, though the higher one might not.
+
+For example, using "10-20/2" would be the same as "10,12,14,16,18,20" and
+"10-20/3" be the same as "10,13,16,19" (note that 20 isn't a match).
+
+Note that unlike other daemons, B<slicd> does not wake every minute to check if
+a job matches the current time, instead it calculates the time for the next job
+to run, and waits until there. This is why any out of range value will be
+detected and reported as a parsing error (see L<RETURN VALUES> below).
+
+As indicated in the table above, for the 'month' and 'day of the week' fields
+names can also be used. Names are always the first 3 letters of the month/day
+(case does not matter).
+
+Names can be used in place of a single value or within ranges. You can for
+example use "jun-aug", "6-Aug" or "6-7,Aug" indifferently for the 'month' field.
+
+System crontabs have an extra field for the username to run under.
+
+The final field, or rest of the line, will be used as command line. See
+B<slicd-exec>(1) for more on how it will be parsed/processed.
+
+=head2 Special case: Using both 'day' & 'day of the week' fields
+
+If a restriction is set on the 'day of the week' field, i.e. the whole range
+wasn't included, the state of the first 6 days (1-6 in the field 'day') will be
+checked:
+
+- if all are set, the field 'day' will be treated as if '*' was used (i.e. any
+  restriction above will be ignored)
+
+- if none are set, this will result in a parsing error
+
+- if only some are set, it will be processed to mean the Nth of the 'day of the
+  week'. For example, with the 'day' field set to "2,4" and 'day of the week'
+  set to "Wed,Fri" then the job will run the 2nd Wednesday, 2nd Friday, 4th
+  Wednesday and 4th Friday of the month.
+
+  In addition to 1-5 for the first to fifth of the month, you can use 6 to mean
+  the last of the month. For example, with "2,6" as 'day' and "Mon" as 'day of
+  the week' the job would run the second and last Mondays.
+
+  Note that using e.g. "4,6" when if the fourth is also the last will only have
+  the job run once, on the fourth (or last) of the month, as expected.
+
+=head1 RETURN VALUE
+
+When parsing crontabs, any parsing error (e.g. out of range values specified,
+etc) will be reported on stderr, but the rest of the crontab, and other
+crontabs, will still be parsed. However, no output will be written; This is
+meant to allow to check for any such errors at once.
+
+The following return values are possible:
+
+=over
+
+=item B<0> : success
+
+=item B<1> : usage error (unknown option, etc)
+
+=item B<2> : I/O error (permission denied, etc)
+
+=item B<3> : memory error
+
+=item B<4> : no crontabs to parse specified (note that empty crontabs do not
+trigger this, only a lack any options B<--system>, B<--users> and
+B<--users-dirs>)
+
+=item B<5> : no output to write to specified
+
+=item B<6> : parsing errors occured
+
+=back
+
+=head1 SEE ALSO
+
+B<slicd-sched>(1), B<slicd-exec>(1)

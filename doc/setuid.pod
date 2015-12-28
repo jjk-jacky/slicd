@@ -1,0 +1,60 @@
+=head1 NAME
+
+setuid - Execute a program as another user
+
+=head1 SYNOPSIS
+
+B<setuid> I<USERNAME> I<PROG...>
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h, --help>
+
+Show help screen and exit.
+
+=item B<-V, --version>
+
+Show version information and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<setuid>(1) is a small tool that will set its real and effective uid and gid to
+those of I<USERNAME>, as well as the list of supplementaty groups to the one of
+I<USERNAME>, then execute into I<PROG...>
+
+This is needed to drop privileges of the right user before executing into the
+command line of a cron job. It is intended to be used via B<slicd-exec>(1).
+
+=head1 NOTES
+
+B<setuid>(1) obviously requires to run as root in order to be able to drop
+privileges.
+
+=head1 RETURN VALUE
+
+The following return values are possible:
+
+=over
+
+=item B<0> : success (only with B<--help> or B<--version>)
+
+=item B<131> : usage error (unknown option, etc)
+
+=item B<132> : I/O error (permission denied, etc)
+
+=item B<134> : unknown user
+
+=item B<135> : failed to set uid/gid/supplementary groups
+
+=back
+
+Note that they are above the usual to help differentiate with return values from
+the program executed into.
+
+=head1 SEE ALSO
+
+B<slicd-parser>(1), B<slicd-sched>(1), B<slicd-exec>(1), B<miniexec>(1)

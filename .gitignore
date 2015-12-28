@@ -1,0 +1,17 @@
+*.swp
+*.bak
+*.o
+*.a
+*.lo
+*.so
+*.orig
+*.rej
+.dirstamp
+/package/deps.mak
+/config.mak
+/src/include/slicd/config.h
+/*.1
+/slicd-*
+/setuid
+/miniexec
+/libslicd.a

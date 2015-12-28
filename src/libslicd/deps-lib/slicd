@@ -1,0 +1,12 @@
+bitarray_clearsetn.o
+bitarray_firstclear_skip.o
+bitarray_firstset_skip.o
+errmsg.o
+slicd_add_job_from_cronline.o
+slicd_die_usage.o
+slicd_die_version.o
+slicd_free.o
+slicd_job.o
+slicd_job_next_run.o
+slicd_load.o
+slicd_save.o

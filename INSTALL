@@ -1,0 +1,24 @@
+Build Instructions
+------------------
+
+* Requirements
+  ------------
+
+  - A POSIX-compliant C development environment
+  - GNU make version 4.0 or later
+  - skalibs version 2.3.8.0 or later: http://skarnet.org/software/skalibs/
+
+
+* Standard usage
+  --------------
+
+  ./configure && make && sudo make install
+
+ will work for most users.
+
+
+* Customization
+  -------------
+
+ You can customize paths via flags given to configure.
+ See ./configure --help for a list of all available configure options.

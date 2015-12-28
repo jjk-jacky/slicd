@@ -1,0 +1,106 @@
+=head1 NAME
+
+slicd-sched - Scheduler, aka the cron daemon
+
+=head1 SYNOPSIS
+
+B<slicd-sched> [B<-R> I<FD>] I<FILE>
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h, --help>
+
+Show help screen and exit.
+
+=item B<-R, --ready-fd> I<FD>
+
+Announce readiness by printing a LF (\n) on I<FD> when ready. This can be used
+to signal to your service manager when the daemon is actually ready.
+
+=item B<-V, --version>
+
+Show version information and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<slicd-sched>(1) is the actual cron daemon. It must be started with the path to
+a file of "compiled" crontabs, previously generated via B<slicd-parser>(1)
+
+It will load the compiled crontabs in memory, calculate the next runtime for
+every job, process them as needed and wait until the next time a job needs to
+run.
+
+Processing a job simply means that it will print on its stdout a line in the
+format I<USERNAME:COMMAND LINE> corresponding to the job to run. Its stdout is
+obviously meant to be redirected into B<slicd-exec>(1)'s stdin, which will take
+care of forking and executing the command line.
+
+Unlike most cron daemons, B<slicd-sched>(1) doesn't wake up every minute to
+check if a job definition matches & must be run; Instead, it calculate the next
+runtime for each job, and waits until the closest one.
+
+It does so via a timer set on the real-time system clock, which means any time
+changes (manual, NTP, daylight savings, etc) is handled properly. Specifically,
+if the time jumps backward, nothing happens (jobs are not re-run). If the time
+jumps forward, it will process every job that should have run during the
+(missed) interval, but only once.
+
+So a job said to run every minute would only be processed once, even for a jump
+forward of many hours.
+
+=head1 SIGNALS
+
+The following signals can be used :
+
+=over
+
+=item B<SIGHUP>
+
+Reload compiled crontabs. To avoid re-running jobs, the next jobs to run will
+only be calculated started at the next minute.
+
+=item B<SIGUSR1>
+
+Re-process jobs starting at the current minute.
+
+=item B<SIGINT>
+
+=item B<SIGTERM>
+
+Exit.
+
+=back
+
+=head1 NOTES
+
+Since it only prints to its stdout when a job needs to run, B<slicd-sched>(1)
+can run as any user, it doesn't require root privileges. Only B<slicd-exec>(1)
+does, so the forked children can drop privileges as needed.
+
+=head1 RETURN VALUE
+
+The following return values are possible:
+
+=over
+
+=item B<0> : success
+
+=item B<1> : usage error (unknown option, etc)
+
+=item B<2> : I/O error (permission denied, etc)
+
+=item B<3> : memory error
+
+=item B<4> : no crontabs specified
+
+=item B<5> : other errors (failed to get current time, set timer, etc)
+
+=back
+
+=head1 SEE ALSO
+
+B<slicd-parser>(1), B<slicd-exec>(1)
