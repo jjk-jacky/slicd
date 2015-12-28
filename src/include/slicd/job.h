@@ -67,4 +67,7 @@ extern int slicd_job_first          (slicd_job_t    *job,
                                      int             to,
                                      int             what);
 
+
+extern int slicd_job_ensure_valid   (slicd_job_t    *job);
+
 #endif /* SLICD_JOB_H */

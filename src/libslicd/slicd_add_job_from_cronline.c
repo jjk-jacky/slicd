@@ -169,6 +169,7 @@ slicd_add_job_from_cronline (slicd_t     *slicd,
 {
     slicd_job_t j = { 0, };
     const char *s = cronline;
+    int len;
     int r;
     int i;
 
@@ -186,81 +187,37 @@ slicd_add_job_from_cronline (slicd_t     *slicd,
             return r;
     }
 
-    /* special case: days combo */
-    if (slicd_job_first (&j, SLICD_DAYS_OF_WEEK, 0, 6, 0) <= 6)
+    r = slicd_job_ensure_valid (&j);
+    if (r < 0)
+        return r;
+
+    if (username)
+        i = strlen (username);
+    else
     {
-        /* there is a restriction on DOW, now let's check how the first 6 days
-         * are set:
-         * - all set    = same as '*', no restriction on DAYS
-         * - none set   = invalid
-         * - a mix      = DAYS_COMBO
-         */
-
-        if (slicd_job_first (&j, SLICD_DAYS, 1, 6, 0) == 7)
-            slicd_job_set (&j, SLICD_DAYS, 1, 31);
-        else if (slicd_job_first (&j, SLICD_DAYS, 1, 6, 1) == 7)
-            return -SLICD_ERR_DAYS_COMBO;
-        else
-            slicd_job_set_days_combo (&j, 1);
-    }
-
-    /* ensure date validity/coherence */
-    if (slicd_job_first (&j, SLICD_DAYS, 1, 29, 1) == 30)
-    {
-        /* none of the first 29 days are set, so we need to do some checking:
-         * if day 30 is set, that there's another month than Feb,
-         * else (i.e. day 31 is set) that there's at least one matching month
-         */
-        if (slicd_job_has (&j, SLICD_DAYS, 30))
-        {
-            if (!(slicd_job_has (&j, SLICD_MONTHS, 1)
-                        || slicd_job_first (&j, SLICD_MONTHS, 3, 12, 1) <= 12))
-                return -SLICD_ERR_IMPOSSIBLE_DATE;
-        }
-        else
-        {
-            if (!(slicd_job_has (&j, SLICD_MONTHS, 1)
-                        || slicd_job_has (&j, SLICD_MONTHS, 3)
-                        || slicd_job_has (&j, SLICD_MONTHS, 5)
-                        || slicd_job_has (&j, SLICD_MONTHS, 7)
-                        || slicd_job_has (&j, SLICD_MONTHS, 8)
-                        || slicd_job_has (&j, SLICD_MONTHS, 10)
-                        || slicd_job_has (&j, SLICD_MONTHS, 12)))
-                return -SLICD_ERR_IMPOSSIBLE_DATE;
-        }
-    }
-
-    {
-        int len;
-
-        if (username)
-            i = strlen (username);
-        else
-        {
-            username = s;
-            for (i = 0; *s != '\0' && !is_blank (*s); ++s, ++i)
-                ;
-            skip_blanks (s);
-        }
-        if (i == 0)
-            return -SLICD_ERR_NO_USERNAME;
-        if (*s == '\0')
-            return -SLICD_ERR_SYNTAX;
-
-        for (len = strlen (s); is_blank (s[len - 1]); --len)
+        username = s;
+        for (i = 0; *s != '\0' && !is_blank (*s); ++s, ++i)
             ;
-
-        if (!stralloc_readyplus (&slicd->str, i + 1 + len + 1)
-                || !genalloc_readyplus (slicd_job_t, &slicd->jobs, 1))
-            return -SLICD_ERR_MEMORY;
-
-        j.offset = slicd->str.len;
-        stralloc_catb (&slicd->str, username, i);
-        stralloc_catb (&slicd->str, ":", 1);
-        stralloc_catb (&slicd->str, s, len);
-        stralloc_0 (&slicd->str);
-        genalloc_catb (slicd_job_t, &slicd->jobs, &j, 1);
-
-        return 1;
+        skip_blanks (s);
     }
+    if (i == 0)
+        return -SLICD_ERR_NO_USERNAME;
+    if (*s == '\0')
+        return -SLICD_ERR_SYNTAX;
+
+    for (len = strlen (s); is_blank (s[len - 1]); --len)
+        ;
+
+    if (!stralloc_readyplus (&slicd->str, i + 1 + len + 1)
+            || !genalloc_readyplus (slicd_job_t, &slicd->jobs, 1))
+        return -SLICD_ERR_MEMORY;
+
+    j.offset = slicd->str.len;
+    stralloc_catb (&slicd->str, username, i);
+    stralloc_catb (&slicd->str, ":", 1);
+    stralloc_catb (&slicd->str, s, len);
+    stralloc_0 (&slicd->str);
+    genalloc_append (slicd_job_t, &slicd->jobs, &j);
+
+    return 1;
 }

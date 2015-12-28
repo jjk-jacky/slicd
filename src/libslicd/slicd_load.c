@@ -25,6 +25,7 @@
 #include <skalibs/uint32.h>
 #include <skalibs/djbunix.h>
 #include <slicd/slicd.h>
+#include <slicd/job.h>
 #include <slicd/err.h>
 
 int
@@ -99,6 +100,26 @@ slicd_load (slicd_t *slicd, const char *file)
             return 0;
         }
         slicd->jobs.len += r;
+    }
+
+    /* ensure loaded data are valid */
+    {
+        int i;
+
+        for (i = 0; i < genalloc_len (slicd_job_t, &slicd->jobs); ++i)
+        {
+            slicd_job_t *job = &genalloc_s (slicd_job_t, &slicd->jobs)[i];
+
+            if (job->offset >= slicd->str.len)
+            {
+                r = -SLICD_ERR_INVALID_JOB;
+                goto err;
+            }
+
+            r = slicd_job_ensure_valid (job);
+            if (r < 0)
+                goto err;
+        }
     }
 
 err:

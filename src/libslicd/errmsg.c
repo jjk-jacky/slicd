@@ -33,5 +33,7 @@ const char const *slicd_errmsg[_SLICD_NB_ERR] = {
     "Syntax error",
     "Out of range days alongside days of the week",
     "Impossible date matching (e.g. Feb 31)",
-    "No username specified"
+    "No username specified",
+    "No possible match (field without any selection)",
+    "Invalid job data"
 };

@@ -7,6 +7,7 @@ slicd_die_usage.o
 slicd_die_version.o
 slicd_free.o
 slicd_job.o
+slicd_job_ensure_valid.o
 slicd_job_next_run.o
 slicd_load.o
 slicd_save.o
