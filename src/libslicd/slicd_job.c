@@ -27,16 +27,6 @@
 #include <slicd/fields.h>
 #include <slicd/err.h>
 
-extern void _bitarray_clearsetn (register unsigned char *s,
-                                 register unsigned int a,
-                                 register unsigned int b,
-                                 register unsigned int h);
-extern unsigned int _bitarray_firstset_skip (register unsigned char const *s,
-                                             unsigned int max,
-                                             unsigned int skip);
-extern unsigned int _bitarray_firstclear_skip (register unsigned char const *s,
-                                               unsigned int max,
-                                               unsigned int skip);
 
 #define ensure_in_range(field,n) \
     if (n < 0 || n > _slicd_fields[field].max)  \
@@ -70,7 +60,7 @@ slicd_job_set_days_combo (slicd_job_t    *job,
 {
     assert (job != NULL);
 
-    _bitarray_clearsetn (job->bits, _SLICD_BIT_DAYS_COMBO, 1, what);
+    bitarray_clearsetn (job->bits, _SLICD_BIT_DAYS_COMBO, 1, what);
     return 0;
 }
 
@@ -94,7 +84,7 @@ slicd_job_clearset (slicd_job_t    *job,
     if (to < from)
         return -SLICD_ERR_INVALID_RANGE;
 
-    _bitarray_clearsetn (job->bits, _slicd_fields[field].offset + from, to - from + 1, what);
+    bitarray_clearsetn (job->bits, _slicd_fields[field].offset + from, to - from + 1, what);
     return 0;
 }
 
@@ -123,9 +113,9 @@ slicd_job_first (slicd_job_t    *job,
     from += _slicd_fields[field].offset;
     to += _slicd_fields[field].offset;
     if (what)
-        r = _bitarray_firstset_skip (job->bits, to + 1, from);
+        r = bitarray_firstset_skip (job->bits, to + 1, from);
     else
-        r = _bitarray_firstclear_skip (job->bits, to + 1, from);
+        r = bitarray_firstclear_skip (job->bits, to + 1, from);
 
     return _slicd_fields[field].adjust + r - _slicd_fields[field].offset;
 }
