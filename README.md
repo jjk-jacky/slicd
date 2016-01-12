@@ -44,7 +44,7 @@ slicd-exec(1) :
 
 ## Free Software
 
-slicd - Copyright (C) 2015 Olivier Brunel <jjk@jjacky.com>
+slicd - Copyright (C) 2016 Olivier Brunel <jjk@jjacky.com>
 
 slicd is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

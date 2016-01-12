@@ -1,8 +1,8 @@
 /*
- * slicd - Copyright (C) 2015 Olivier Brunel
+ * slicd - Copyright (C) 2016 Olivier Brunel
  *
  * slicd_die_version.c
- * Copyright (C) 2015 Olivier Brunel <jjk@jjacky.com>
+ * Copyright (C) 2016 Olivier Brunel <jjk@jjacky.com>
  *
  * This file is part of slicd.
  *
@@ -32,7 +32,7 @@ slicd_die_version (void)
     buffer_puts (buffer_1small, PROG);
     buffer_puts (buffer_1small, " v" SLICD_VERSION "\n");
     buffer_putsflush (buffer_1small,
-            "Copyright (C) 2015 Olivier Brunel - http://jjacky.com/slicd\n"
+            "Copyright (C) 2016 Olivier Brunel - http://jjacky.com/slicd\n"
             "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n"
             "This is free software: you are free to change and redistribute it.\n"
             "There is NO WARRANTY, to the extent permitted by law.\n"

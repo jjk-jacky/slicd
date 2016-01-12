@@ -1,8 +1,8 @@
 /*
- * slicd - Copyright (C) 2015 Olivier Brunel
+ * slicd - Copyright (C) 2016 Olivier Brunel
  *
  * sched.h
- * Copyright (C) 2015 Olivier Brunel <jjk@jjacky.com>
+ * Copyright (C) 2016 Olivier Brunel <jjk@jjacky.com>
  *
  * This file is part of slicd.
  *
