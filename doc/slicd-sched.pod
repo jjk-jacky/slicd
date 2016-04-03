@@ -44,13 +44,33 @@ check if a job definition matches & must be run; Instead, it calculate the next
 runtime for each job, and waits until the closest one.
 
 It does so via a timer set on the real-time system clock, which means any time
-changes (manual, NTP, daylight savings, etc) is handled properly. Specifically,
-if the time jumps backward, nothing happens (jobs are not re-run). If the time
-jumps forward, it will process every job that should have run during the
-(missed) interval, but only once.
+changes (manual, NTP, etc) is handled properly.
 
-So a job said to run every minute would only be processed once, even for a jump
-forward of many hours.
+Specifically, if the time jumps backward, nothing happens (jobs are not re-run),
+as B<slicd-sched>(1) still waits for the time previously calculated. If after
+setting the time backward you want jobs to be processed, you'll need to have
+B<slicd-sched>(1) re-process jobs at the (new) current minute, which can be done
+simply by sending it a signal USR1.
+
+If the time jumps forward and the timer has expired, it will process every job
+that should run in the current minute, and again set a new timer for the closest
+next run. (There's no attempt to run "missed" jobs.)
+
+=head2 Daylight Saving Time
+
+Time changes due to DST are also handled properly, though differently since they
+are another beast.
+
+Specifically, when time jumps backward then jobs that run during the "repeated"
+interval will indeed run again. For example, if a job runs every hour at minute
+30, and the clock jumps from 02:59 (DST activated) to 02:00 (DST deactivated),
+then the job will run at 02:30 (DST on), then an hour later at 02:30 (DST off).
+
+When time jumps forward then jobs that would have run during the "missed"
+interval will simply not run, since that time didn't happen; there's no attempt
+to run "missed" jobs either. For example our job set to run every hour at minute
+30, when the clock goes from 01:59 (DST off) to 03:00 (DST on), would simply run
+at 01:30 (DST off) then an hour later at 03:30 (DST on).
 
 =head1 SIGNALS
 

@@ -204,8 +204,8 @@ main (int argc, char * const argv[])
     {
         if (iop[1].revents & IOPAUSE_READ)
         {
-            struct tm cur_tm, next_tm, since_tm, *tm;
-            time_t cur_time, next_time, since_time;
+            struct tm cur_tm, next_tm, *tm;
+            time_t cur_time, next_time;
             int i;
 
             if (clock_gettime (CLOCK_REALTIME, &its.it_interval) < 0)
@@ -221,41 +221,12 @@ main (int argc, char * const argv[])
             cur_time -= cur_tm.tm_sec;
             cur_tm.tm_sec = 0;
 
-            since_time = cur_time;
-            byte_copy (&since_tm, sizeof (since_tm), &cur_tm);
-
-            /* is there a timerfd set? i.e. did we wait for some time, if so we
-             * might need to handle some time changes.
-             * Any time change shouldn't affect us, since our timerfd is based
-             * on CLOCK_REALTIME and simply "adjust" as needed. But, time might
-             * have jumped forwad and we "missed" our deadline...
-             * We'll also account for the case of the time going back right
-             * after our timerfd expired, just in case.
-             */
-            if (its.it_value.tv_sec > 0)
+            /* post-DO_RELOAD, wait for next minute to avoid rerunning jobs */
+            if (its.it_value.tv_sec == 1 && its.it_value.tv_nsec == 1)
             {
-                /* post-DO_RELOAD, wait for next minute to avoid rerunning jobs */
-                if (its.it_value.tv_nsec > 0)
-                {
-                    its.it_value.tv_nsec = 0;
-                    next_time = cur_time + 60;
-                    goto timer;
-                }
-                else if (cur_time > its.it_value.tv_sec)
-                {
-                    /* we're ahead of the plan, we need to trigger anything that
-                     * we "missed" */
-                    since_time = its.it_value.tv_sec;
-                    tm = localtime (&since_time);
-                    if (!tm)
-                        strerr_diefu1x (RC_OTHER, "break down time");
-                    byte_copy (&since_tm, sizeof (since_tm), tm);
-                }
-                else if (cur_time < its.it_value.tv_sec)
-                {
-                    /* we're early somehow; just wait it out... */
-                    goto pause;
-                }
+                its.it_value.tv_nsec = 0;
+                next_time = cur_time + 60;
+                goto timer;
             }
 
             next_time = (time_t) -1;
@@ -265,7 +236,7 @@ main (int argc, char * const argv[])
                 struct tm job_tm;
                 time_t job_time;
 
-                byte_copy (&job_tm, sizeof (job_tm), &since_tm);
+                byte_copy (&job_tm, sizeof (job_tm), &cur_tm);
 next_run:
                 job_time = slicd_job_next_run (job, &job_tm);
                 if (job_time == (time_t) -1)
@@ -274,23 +245,14 @@ next_run:
                     continue;
                 }
 
-                if (job_time <= cur_time)
+                if (job_time == cur_time)
                 {
                     buffer_puts (buffer_1small, job_str (job));
                     if (!buffer_putsflush (buffer_1small, "\n"))
                         strerr_diefu1sys (RC_IO, "write to stdout");
 
-                    /* now calculate the "actual" next run, using cur_tm in case
-                     * since_tm was set earlier (time jump) */
-                    byte_copy (&job_tm, sizeof (job_tm), &cur_tm);
+                    /* now calculate the "actual" next run */
                     ++job_tm.tm_min;
-                    /* call mktime() to update job_tm, as one more minute
-                     * might be a new hour, day, etc */
-                    if (mktime (&job_tm) == (time_t) -1)
-                    {
-                        strerr_warnwu3x ("get next run for job '", job_str (job), "'");
-                        continue;
-                    }
                     goto next_run;
                 }
                 else if (next_time == (time_t) -1 || job_time < next_time)
@@ -309,7 +271,6 @@ timer:
         else if (iop[1].revents & IOPAUSE_EXCEPT)
             strerr_dief1sys (RC_IO, "trouble with timerfd");
 
-pause:
         r = iopause_g (iop, 2, NULL);
         if (r < 0)
             strerr_diefu1sys (RC_IO, "iopause");
