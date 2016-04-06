@@ -72,6 +72,23 @@ to run "missed" jobs either. For example our job set to run every hour at minute
 30, when the clock goes from 01:59 (DST off) to 03:00 (DST on), would simply run
 at 01:30 (DST off) then an hour later at 03:30 (DST on).
 
+=head2 Special DST mode
+
+A special DST handling mode can be activated on a per-job basis (see
+B<slicd-parser>(1)), in which case time changes due to DST are handled
+differently than described above.
+
+When time jumps backwards, jobs will only run during the "first pass" - or when
+DST was activated. When the time "repeats" but with DST deactivated, they will
+not run. So using the same example, our job would run at 02:30 (DST on), and
+then only two hours later, at 03:30 (DST off).
+
+When time jumps forward, jobs that would have run at least once during the
+"missed" interval will run at the first minute of DST. Again, with our usual
+example it would have the job run at 01:30 (DST off), then at 03:00 (DST on) -
+because of a "missed run" at the non-existing time of 02:30 - and back as usual
+at 03:30 (DST off).
+
 =head1 SIGNALS
 
 The following signals can be used :

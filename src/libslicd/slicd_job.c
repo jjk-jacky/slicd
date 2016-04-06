@@ -65,6 +65,23 @@ slicd_job_set_days_combo (slicd_job_t    *job,
 }
 
 int
+slicd_job_has_dst_special (slicd_job_t    *job)
+{
+    assert (job != NULL);
+    return bitarray_isset (job->bits, _SLICD_BIT_DST_SPECIAL);
+}
+
+int
+slicd_job_set_dst_special (slicd_job_t    *job,
+                           int             what)
+{
+    assert (job != NULL);
+
+    bitarray_clearsetn (job->bits, _SLICD_BIT_DST_SPECIAL, 1, what);
+    return 0;
+}
+
+int
 slicd_job_clearset (slicd_job_t    *job,
                     slicd_field_t   field,
                     int             from,
