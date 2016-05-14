@@ -81,8 +81,8 @@ The time-and-date fields are, in order:
     month               1-12 (or names, see below)
     day of the week     0-6 (0=Sunday, 1=Monday, etc; or names, see below)
 
-The hour field can have its value prefixed with an exclamation point (!) to
-enable the special DST mode for the job; See B<slicd-sched>(1) for more.
+The hour field can have its value prefixed with a dollar sign ($) to enable the
+special DST mode for the job; See B<slicd-sched>(1) for more.
 
 Range of values are allowed, separating two values with a hyphen (-). The
 specified range is inclusive, and must always have the lower value first.

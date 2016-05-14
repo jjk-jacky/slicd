@@ -86,7 +86,7 @@ parse_interval (slicd_job_t *job, slicd_field_t field, const char **s)
     int max = min + _slicd_fields[field].max;
     int from, to, step;
 
-    if (field == SLICD_HOURS && **s == '!')
+    if (field == SLICD_HOURS && **s == '$')
     {
         slicd_job_set_dst_special (job, 1);
         ++*s;
