@@ -66,6 +66,11 @@ extern int slicd_job_clearset       (slicd_job_t    *job,
 #define slicd_job_set(job,field,from,to) \
     slicd_job_clearset (job, field, from, to, 1)
 
+extern int slicd_job_swap           (slicd_job_t    *job,
+                                     slicd_field_t   field,
+                                     int             from,
+                                     int             to);
+
 extern int slicd_job_first          (slicd_job_t    *job,
                                      slicd_field_t   field,
                                      int             from,

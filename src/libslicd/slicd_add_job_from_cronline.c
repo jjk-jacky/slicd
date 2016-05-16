@@ -85,10 +85,18 @@ parse_interval (slicd_job_t *job, slicd_field_t field, const char **s)
     int min = _slicd_fields[field].adjust;
     int max = min + _slicd_fields[field].max;
     int from, to, step;
+    int swap = 0;
 
     if (field == SLICD_HOURS && **s == '$')
     {
         slicd_job_set_dst_special (job, 1);
+        ++*s;
+
+    }
+
+    if (**s == '!')
+    {
+        swap = 1;
         ++*s;
     }
 
@@ -164,6 +172,10 @@ again:
         goto again;
     }
     skip_blanks (*s);
+
+    if (swap)
+        slicd_job_swap (job, field, _slicd_fields[field].adjust,
+                _slicd_fields[field].adjust + _slicd_fields[field].max);
 
     return 0;
 }

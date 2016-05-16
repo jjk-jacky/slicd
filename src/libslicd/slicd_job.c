@@ -106,6 +106,29 @@ slicd_job_clearset (slicd_job_t    *job,
 }
 
 int
+slicd_job_swap (slicd_job_t    *job,
+                slicd_field_t   field,
+                int             from,
+                int             to)
+{
+    assert (job != NULL);
+    assert (field <= _SLICD_NB_FIELD);
+
+    if (_slicd_fields[field].adjust)
+    {
+        --from;
+        --to;
+    }
+    ensure_in_range (field, from);
+    ensure_in_range (field, to);
+    if (to < from)
+        return -SLICD_ERR_INVALID_RANGE;
+
+    bitarray_not (job->bits, _slicd_fields[field].offset + from, to - from + 1);
+    return 0;
+}
+
+int
 slicd_job_first (slicd_job_t    *job,
                  slicd_field_t   field,
                  int             from,

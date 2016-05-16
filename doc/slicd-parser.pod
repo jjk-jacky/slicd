@@ -81,9 +81,6 @@ The time-and-date fields are, in order:
     month               1-12 (or names, see below)
     day of the week     0-6 (0=Sunday, 1=Monday, etc; or names, see below)
 
-The hour field can have its value prefixed with a dollar sign ($) to enable the
-special DST mode for the job; See B<slicd-sched>(1) for more.
-
 Range of values are allowed, separating two values with a hyphen (-). The
 specified range is inclusive, and must always have the lower value first.
 
@@ -111,6 +108,14 @@ names can also be used. Names are always the first 3 letters of the month/day
 
 Names can be used in place of a single value or within ranges. You can for
 example use "jun-aug", "6-Aug" or "6-7,Aug" indifferently for the 'month' field.
+
+Each field can have its value prefixed with an exclamation point (!) in order to
+invert it. For example, using "!15,20" as value for days will mean every day
+but the 15th and 20th; the invertion being applied to the entire list of values.
+
+The hour field can also have its value prefixed with a dollar sign ($) to enable
+the special DST mode for the job; See B<slicd-sched>(1) for more. Note that when
+also using the invertion flag (!), the dollar sign should come first.
 
 System crontabs have an extra field for the username to run under.
 
