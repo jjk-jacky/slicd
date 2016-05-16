@@ -1,4 +1,5 @@
 BIN_TARGETS := \
+slicd-dump \
 slicd-parser \
 slicd-sched \
 slicd-exec \
@@ -7,6 +8,7 @@ miniexec
 
 DOC_TARGETS := \
 slicd.1 \
+slicd-dump.1 \
 slicd-parser.1 \
 slicd-sched.1 \
 slicd-exec.1 \

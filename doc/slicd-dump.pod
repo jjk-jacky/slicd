@@ -1,0 +1,42 @@
+=head1 NAME
+
+slicd-dump - Print content of "compiled" crontabs
+
+=head1 SYNOPSIS
+
+B<slicd-dump> I<FILE>
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h, --help>
+
+Show help screen and exit.
+
+=item B<-V, --version>
+
+Show version information and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<slicd-dump>(1) is a small helper that will print the content of a "compiled"
+crontabs file, generated via B<slicd-parser>(1), in human readable format.
+
+It will list all jobs in the file, with for each of them the job line (in the
+form "USERNAME:COMMAND LINE" as would be printed by B<slicd-sched>(1)), and for
+each fields (Minutes, Hours, etc) the matching values.
+
+Values will be printed in a format compatible for the B<slicd-parser>(1): an
+asterisk (*) when all allowed values match, or a list of values/ranges as
+needed. For fields "Days" and "Days of the month" it will use names.
+
+It will be noted when special DST mode was enabled, and/or when "days combo" is
+activated (using both "Days" and "Days of the week" to mean e.g. 2nd Wednesday
+of the month; see B<slicd-parser>(1) for more).
+
+=head1 SEE ALSO
+
+B<slicd-parser>(1), B<slicd-sched>(1)

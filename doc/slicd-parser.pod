@@ -176,4 +176,4 @@ B<--users-dirs>)
 
 =head1 SEE ALSO
 
-B<slicd-sched>(1), B<slicd-exec>(1)
+B<slicd-dump>(1), B<slicd-sched>(1), B<slicd-exec>(1)

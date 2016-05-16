@@ -1,3 +1,4 @@
+slicd-dump              0755
 slicd-parser            0755
 slicd-sched             0755
 slicd-exec              0755
