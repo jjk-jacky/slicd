@@ -152,7 +152,7 @@ again:
     if (!is_blank (**s) && **s != ',')
         return -SLICD_ERR_SYNTAX;
 
-    if (from == min && to == max && step == 1)
+    if (step == 1)
         slicd_job_set (job, field, from, to);
     else
         for ( ; from <= to; from += step)
