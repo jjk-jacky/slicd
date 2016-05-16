@@ -1,7 +1,7 @@
 BIN_TARGETS := \
-slicd-exec \
 slicd-parser \
 slicd-sched \
+slicd-exec \
 setuid \
 miniexec
 

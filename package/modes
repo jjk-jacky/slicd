@@ -1,5 +1,5 @@
-slicd-exec              0755
 slicd-parser            0755
 slicd-sched             0755
+slicd-exec              0755
 setuid                  0755
 miniexec                0755
