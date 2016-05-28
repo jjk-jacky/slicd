@@ -176,8 +176,19 @@ out:
             buffer_puts (buffer_1small, "\n");
         }
 
-        if (slicd_job_has_dst_special (job))
-            buffer_puts (buffer_1small, "Special DST mode enabled.\n");
+        {
+            slicd_dst_special_t dst = slicd_job_get_dst_special (job);
+
+            if (dst)
+            {
+                buffer_puts (buffer_1small, "Special DST mode enabled");
+                if (dst == SLICD_DST_ON_DEACTIVATION)
+                    buffer_puts (buffer_1small, " on deactivation only");
+                else if (dst == SLICD_DST_ON_ACTIVATION)
+                    buffer_puts (buffer_1small, " on activation only");
+                buffer_puts (buffer_1small, ".\n");
+            }
+        }
         if (slicd_job_has_days_combo (job))
             buffer_puts (buffer_1small, "Note: Days Combo activated.\n");
         buffer_putsflush (buffer_1small, "\n");

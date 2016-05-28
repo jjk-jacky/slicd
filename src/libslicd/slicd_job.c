@@ -57,20 +57,30 @@ slicd_job_has_days_combo (slicd_job_t    *job)
         && slicd_job_first (job, SLICD_DAYS, 1, 6, 0) <= 6;
 }
 
-int
-slicd_job_has_dst_special (slicd_job_t    *job)
+slicd_dst_special_t
+slicd_job_get_dst_special (slicd_job_t    *job)
 {
+    slicd_dst_special_t dst = SLICD_DST_OFF;
+
     assert (job != NULL);
-    return bitarray_isset (job->bits, _SLICD_BIT_DST_SPECIAL);
+
+    if (bitarray_peek (job->bits, _SLICD_BITS_DST_SPECIAL))
+        dst |= SLICD_DST_ON_DEACTIVATION;
+    if (bitarray_peek (job->bits, _SLICD_BITS_DST_SPECIAL + 1))
+        dst |= SLICD_DST_ON_ACTIVATION;
+
+    return dst;
 }
 
 int
-slicd_job_set_dst_special (slicd_job_t    *job,
-                           int             what)
+slicd_job_set_dst_special (slicd_job_t        *job,
+                           slicd_dst_special_t dst)
 {
     assert (job != NULL);
+    assert (dst <= SLICD_DST_ON_BOTH);
 
-    bitarray_clearsetn (job->bits, _SLICD_BIT_DST_SPECIAL, 1, what);
+    bitarray_poke (job->bits, _SLICD_BITS_DST_SPECIAL, dst & SLICD_DST_ON_DEACTIVATION);
+    bitarray_poke (job->bits, _SLICD_BITS_DST_SPECIAL + 1, dst & SLICD_DST_ON_ACTIVATION);
     return 0;
 }
 

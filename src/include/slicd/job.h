@@ -42,16 +42,25 @@ typedef enum
 } slicd_field_t;
 #define SLICD_DOW   SLICD_DAYS_OF_WEEK
 
+typedef enum
+{
+    SLICD_DST_OFF               = 0,
+    SLICD_DST_ON_DEACTIVATION   = (1 << 0),
+    SLICD_DST_ON_ACTIVATION     = (1 << 1),
+    SLICD_DST_ON_BOTH           = SLICD_DST_ON_DEACTIVATION | SLICD_DST_ON_ACTIVATION
+} slicd_dst_special_t;
+
 extern int slicd_job_has            (slicd_job_t    *job,
                                      slicd_field_t   field,
                                      int             which);
 
 extern int slicd_job_has_days_combo (slicd_job_t    *job);
 
-extern int slicd_job_has_dst_special(slicd_job_t    *job);
+extern slicd_dst_special_t
+        slicd_job_get_dst_special   (slicd_job_t    *job);
 
-extern int slicd_job_set_dst_special(slicd_job_t    *job,
-                                     int             what);
+extern int slicd_job_set_dst_special(slicd_job_t        *job,
+                                     slicd_dst_special_t dst);
 
 extern int slicd_job_clearset       (slicd_job_t    *job,
                                      slicd_field_t   field,

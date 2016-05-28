@@ -76,9 +76,10 @@ at 01:30 (DST off) then an hour later at 03:30 (DST on).
 
 A special DST handling mode can be activated on a per-job basis (see
 B<slicd-parser>(1)), in which case time changes due to DST are handled
-differently than described above.
+differently than described above. It can be enabled only on deactivation (time
+jumps backward), only on activation (time jumps forward), or both.
 
-When time jumps backwards, jobs will only run during the "first pass" - or when
+When time jumps backward, jobs will only run during the "first pass" - or when
 DST was activated. When the time "repeats" but with DST deactivated, they will
 not run. So using the same example, our job would run at 02:30 (DST on), and
 then only two hours later, at 03:30 (DST off).

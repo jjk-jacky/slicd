@@ -87,11 +87,21 @@ parse_interval (slicd_job_t *job, slicd_field_t field, const char **s)
     int from, to, step;
     int swap = 0;
 
-    if (field == SLICD_HOURS && **s == '$')
+    if (field == SLICD_HOURS)
     {
-        slicd_job_set_dst_special (job, 1);
-        ++*s;
+        slicd_dst_special_t dst = SLICD_DST_OFF;
 
+        if (**s == '<')
+        {
+            dst |= SLICD_DST_ON_DEACTIVATION;
+            ++*s;
+        }
+        if (**s == '>')
+        {
+            dst |= SLICD_DST_ON_ACTIVATION;
+            ++*s;
+        }
+        slicd_job_set_dst_special (job, dst);
     }
 
     if (**s == '!')

@@ -113,9 +113,11 @@ Each field can have its value prefixed with an exclamation point (!) in order to
 invert it. For example, using "!15,20" as value for days will mean every day
 but the 15th and 20th; the invertion being applied to the entire list of values.
 
-The hour field can also have its value prefixed with a dollar sign ($) to enable
-the special DST mode for the job; See B<slicd-sched>(1) for more. Note that when
-also using the invertion flag (!), the dollar sign should come first.
+The hour field can also have its value prefixed with either the less than sign
+(<), the greater than sign (>), or both (<>), to enable the special DST mode for
+the job only on deactivation, only on activation, or both respectively.
+See B<slicd-sched>(1) for more. Note that when also using the invertion flag
+(!), the DST flag(s) should come first.
 
 System crontabs have an extra field for the username to run under.
 

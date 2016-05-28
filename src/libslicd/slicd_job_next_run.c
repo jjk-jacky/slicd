@@ -208,7 +208,8 @@ again:
          * before was off, in which case we're right after the "skipped period"
          * and need to see if the job would have been ran then, to run it now
          * instead ("catching up") */
-        if (dst == -2 && slicd_job_has_dst_special (job) && next->tm_isdst == 1)
+        if (dst == -2 && (slicd_job_get_dst_special (job) & SLICD_DST_ON_ACTIVATION)
+                && next->tm_isdst == 1)
         {
             time_t t = time - 60;
             struct tm *tm;
@@ -241,7 +242,7 @@ again:
 
         /* DST special: if DST is on, check if it would have ran during the
          * "skipped period" and if so, match this first minute of new DST */
-        if (dst == 1 && slicd_job_has_dst_special (job))
+        if (dst == 1 && (slicd_job_get_dst_special (job) & SLICD_DST_ON_ACTIVATION))
         {
             n = would_have_ran (job, next);
             if (n < 0)
@@ -349,7 +350,8 @@ bump_day:
     /* DST special: if DST is off, get the first minute since it's been off, and
      * make sure this job isn't in the "repeating time period" and if so, start
      * again after said period */
-    if (slicd_job_has_dst_special (job) && next->tm_isdst == 0)
+    if ((slicd_job_get_dst_special (job) & SLICD_DST_ON_DEACTIVATION)
+            && next->tm_isdst == 0)
     {
         time_t t;
         struct tm tm;
