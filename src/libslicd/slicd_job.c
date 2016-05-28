@@ -51,17 +51,10 @@ int
 slicd_job_has_days_combo (slicd_job_t    *job)
 {
     assert (job != NULL);
-    return bitarray_isset (job->bits, _SLICD_BIT_DAYS_COMBO);
-}
-
-int
-slicd_job_set_days_combo (slicd_job_t    *job,
-                          int             what)
-{
-    assert (job != NULL);
-
-    bitarray_clearsetn (job->bits, _SLICD_BIT_DAYS_COMBO, 1, what);
-    return 0;
+    return slicd_job_first (job, SLICD_DAYS_OF_WEEK, 0, 6, 0) <= 6
+        /* we're assuming job is valid, i.e. went through
+         * slicd_job_ensure_valid() */
+        && slicd_job_first (job, SLICD_DAYS, 1, 6, 0) <= 6;
 }
 
 int

@@ -48,9 +48,6 @@ extern int slicd_job_has            (slicd_job_t    *job,
 
 extern int slicd_job_has_days_combo (slicd_job_t    *job);
 
-extern int slicd_job_set_days_combo (slicd_job_t    *job,
-                                     int             what);
-
 extern int slicd_job_has_dst_special(slicd_job_t    *job);
 
 extern int slicd_job_set_dst_special(slicd_job_t    *job,

@@ -43,21 +43,14 @@ slicd_job_ensure_valid (slicd_job_t *job)
          * are set:
          * - all set    = same as '*', no restriction on DAYS
          * - none set   = invalid
-         * - a mix      = DAYS_COMBO
+         * ( a mix      = DAYS_COMBO )
          */
 
         if (slicd_job_first (job, SLICD_DAYS, 1, 6, 0) == 7)
-        {
             slicd_job_set (job, SLICD_DAYS, 1, 31);
-            slicd_job_set_days_combo (job, 0);
-        }
         else if (slicd_job_first (job, SLICD_DAYS, 1, 6, 1) == 7)
             return -SLICD_ERR_DAYS_COMBO;
-        else
-            slicd_job_set_days_combo (job, 1);
     }
-    else
-        slicd_job_set_days_combo (job, 0);
 
     /* ensure date validity/coherence */
     if (slicd_job_first (job, SLICD_DAYS, 1, 29, 1) == 30)

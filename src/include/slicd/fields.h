@@ -29,8 +29,8 @@
  * 31   days (0-30)
  * 12   months (0-11)
  *  7   days of week (0-6; 0=sunday, 1=monday, etc)
- *  1   days combo: set when both days & dow are set, i.e. the Nth dow
  *  1   special DST: to enable special handling for DST changes
+ *  1   unused
  *
  * 136 bits total; hence an array of 17 char-s
  *
@@ -42,8 +42,7 @@
 #define _SLICD_BITS_OFFSET_DAYS         _SLICD_BITS_OFFSET_HOURS + 24
 #define _SLICD_BITS_OFFSET_MONTHS       _SLICD_BITS_OFFSET_DAYS + 31
 #define _SLICD_BITS_OFFSET_DOW          _SLICD_BITS_OFFSET_MONTHS + 12
-#define _SLICD_BIT_DAYS_COMBO           _SLICD_BITS_OFFSET_DOW + 7
-#define _SLICD_BIT_DST_SPECIAL          _SLICD_BIT_DAYS_COMBO + 1
+#define _SLICD_BIT_DST_SPECIAL          _SLICD_BITS_OFFSET_DOW + 7
 
 static struct
 {
