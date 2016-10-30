@@ -1,4 +1,22 @@
 
+# 2016-11-01, v0.2.0
+
+- Bump skalibs dependency to 2.4.0.0
+
+- Makefile: Fix install w/ dynamic library
+
+- Fix DST handling
+
+- Add "special DST" mode: on a per-job basis, it is possible to enable a
+  "special DST" mode on deactivation, activation, or both. See slicd-parser(1)
+  and slicd-sched(1) for more.
+
+- parser: Add prefix '!' to invert matching values
+
+- Add slicd-dump: to print content of "compiled" crontabs in human-readable
+  format
+
+
 # 2016-01-12, v0.1.0
 
  *  first release
